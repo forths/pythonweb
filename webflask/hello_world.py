@@ -1,5 +1,5 @@
 # coding=utf-8
-from flask import Flask
+from flask import Flask,request
 # 引入Flask类，Flask类实现了一个WSGI应用。
 
 # app是Flask的实例，它接收包或者模块的名字作为参数，但一般都是传递__name__。
@@ -38,6 +38,32 @@ app.config.update(
 # Werkzeug会把这个PIN作为cookie的一部分存起来（失效时间默认8小时），失效之前不需要重复输入。
 # 当然，也可以使用指定PIN码的值：
 # export WERKZEUG_DEBUG_PIN=123
+
+
+# 动态URL规则
+# URL规则可以添加变量部分，也就是将符合同种规则的URL抽象成一个URL模式。
+# 尖括号中的内容是动态的，凡是匹配到/item/前缀的URL都会被映射到这个路由上，在内部把id作为参数而获得。
+# 它使用了特殊的字段标记<riable_name>，默认类型是字符串。如果需要指定类型需要标记成<converter:variable_name>
+# string:接受任何没有斜杠“/”的文本（默认）
+# int：接受整数
+# float:同int，但是接受浮点数
+# path:和默认的相似，但也接受斜杠
+# uuid：只接受uuid字符串
+# any：可以指定多种路径，但是需要传入参数。
+@app.route('/item/<id>/')
+def item(id):
+    return 'Item: {}.'.format(id)
+@app.route('/<any(a,b):page_name>/')
+def testany(page_name):
+    return 'any : {}.'.format(page_name)
+
+
+# 传递参数 /people/?name=hello name
+@app.route('/people/')
+def getname():
+    name = request.args.get('name')
+    # name = request.form.get('name')
+    return name
 
 
 # app.route装饰器会将URL和执行的视图函数的关系保存到app.url_map属性上。
